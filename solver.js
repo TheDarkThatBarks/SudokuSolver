@@ -154,7 +154,7 @@ const placeNum = function (r, c, n) {
 
 const step = function () {
     console.log(unknowns);
-    //ifOnlyPlace();
+    ifOnlyPlace();
     pairsAndTriples();
     while (singleton() !== 0);
 };
@@ -169,8 +169,14 @@ const singleton = function () {
     return 0;
 };
 
+// Need to fix how triples are found
+    // So far, only found if all three every time
 const ifOnlyPlace = function () {
-    for (let n = 1; n <= 9; n++) {
+    for (let n = 1; n <= 1; n++) {
+        const rowPairs = [];
+        const colPairs = [];
+        const rowTriples = [];
+        const colTriples = [];
         for (let i = 0; i < 9; i++) {
             let cellsR = [];
             let cellsC = [];
@@ -184,21 +190,126 @@ const ifOnlyPlace = function () {
                     cellsB.push(j);
             }
             if (cellsR.length === 1)
-                return placeNumber(i, cellsR[0], n);
+                placeNumber(i, cellsR[0], n);
             if (cellsC.length === 1)
-                return placeNumber(cellsC[0], i, n);
+                placeNumber(cellsC[0], i, n);
             if (cellsB.length === 1) {
                 const coords = boxToGrid(i, cellsB[0]);
-                return placeNumber(coords.r, coords.c, n);
+                placeNumber(coords.r, coords.c, n);
+            }
+
+            if (cellsR.length === 2) {
+                for (const pair of rowPairs) {
+                    if (pair.c1 === cellsR[0] && pair.c2 === cellsR[1]) {
+                        for (let j = 0; j < 9; j++) {
+                            if (j === pair.r || j === i)
+                                continue;
+                            removeOption(j, pair.c1, pair.n);
+                            removeOption(j, pair.c2, pair.n);
+                        }
+                    }
+                }
+                rowPairs.push({
+                    r: i,
+                    c1: cellsR[0],
+                    c2: cellsR[1],
+                    n: n
+                });
+            }
+
+            if (cellsC.length === 2) {
+                for (const pair of colPairs) {
+                    if (pair.r1 === cellsC[0] && pair.r2 === cellsC[1]) {
+                        for (let j = 0; j < 9; j++) {
+                            if (j === pair.c || j === i)
+                                continue;
+                            removeOption(pair.r1, j, pair.n);
+                            removeOption(pair.r2, j, pair.n);
+                        }
+                    }
+                }
+                colPairs.push({
+                    c: i,
+                    r1: cellsC[0],
+                    r2: cellsC[1],
+                    n: n
+                });
+            }
+
+            if (cellsR.length <= 3) {
+                let found = [];
+                let newTriple = JSON.parse(JSON.stringify(cellsR));
+                for (const triple of rowTriples) {
+                    const t = JSON.parse(JSON.stringify(newTriple));
+                    for (const c of triple.c) {
+                        if (!t.includes(c))
+                            t.push(c);
+                    }
+                    if (t.length <= 3) {
+                        if (found.length > 0) {
+                            for (let sets of found) {
+                                if (JSON.stringify(sets.c.toSorted((a, b) => a - b)) === JSON.stringify(t.toSorted((a, b) => a - b))) {
+                                    for (let j = 0; j < 9; j++) {
+                                        if (j === sets.r || j === triple.r || j === i)
+                                            continue;
+                                        removeOption(j, sets.c[0], n);
+                                        removeOption(j, sets.c[1], n);
+                                        removeOption(j, sets.c[2], n);
+                                    }
+                                }
+                            }
+                        } else {
+                            found.push({
+                                r: triple.r,
+                                c: t
+                            });
+                        }
+                    }
+                }
+                rowTriples.push({
+                    r: i,
+                    c: newTriple
+                });
+            }
+
+            if (cellsC.length <= 3) {
+                let found = [];
+                let newTriple = JSON.parse(JSON.stringify(cellsC));
+                for (const triple of colTriples) {
+                    const t = JSON.parse(JSON.stringify(newTriple));
+                    for (const r of triple.r) {
+                        if (!t.includes(r))
+                            t.push(r);
+                    }
+                    if (t.length <= 3) {
+                        if (found.length > 0) {
+                            for (let sets of found) {
+                                if (JSON.stringify(sets.r.toSorted((a, b) => a - b)) === JSON.stringify(t.toSorted((a, b) => a - b))) {
+                                    for (let j = 0; j < 9; j++) {
+                                        if (j === sets.c || j === triple.c || j === i)
+                                            continue;
+                                        removeOption(sets.r[0], j, n);
+                                        removeOption(sets.r[1], j, n);
+                                        removeOption(sets.r[2], j, n);
+                                    }
+                                }
+                            }
+                        } else {
+                            found.push({
+                                r: t,
+                                c: triple.c
+                            });
+                        }
+                    }
+                }
+                colTriples.push({
+                    r: newTriple,
+                    c: i
+                });
             }
         }
     }
-};
-
-const onlyTwo = function () {
-    for (let r = 0; r < 9; r++) {
-        
-    }
+    print(options);
 };
 
 const pairsAndTriples = function () {
@@ -325,6 +436,8 @@ const placeNumber = function (r, c, n) {
 };
 
 const removeOption = function (r, c, n) {
+    if (!Array.isArray(options[r][c]))
+        return;
     let idx = options[r][c].indexOf(n);
     if (idx > -1)
         options[r][c].splice(idx, 1);
