@@ -117,7 +117,15 @@ const check = function () {
     return console.log("Pass");
 };
 
+const reset = function () {
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++)
+            document.querySelector(`#r${i}c${j}`).value = "";
+    }
+};
+
 const setup = function () {
+    reset();
     /*placeNum(0, 2, 4);
     placeNum(0, 3, 7);
     placeNum(0, 8, 2);
@@ -145,7 +153,6 @@ const setup = function () {
     placeNum(8, 0, 4);
     placeNum(8, 5, 7);
     placeNum(8, 6, 2);*/
-    //init();
 
     /*placeNum(0, 1, 4);
     placeNum(0, 4, 2);
@@ -208,6 +215,8 @@ const setup = function () {
     placeNum(8, 0, 2);
     placeNum(8, 1, 5);
     placeNum(8, 8, 3);
+
+    init();
 };
 
 const placeNum = function (r, c, n) {
