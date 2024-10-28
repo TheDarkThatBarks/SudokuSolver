@@ -48,7 +48,7 @@ let options, boxOptions;
 let unknowns;
 
 const solve = function () {
-    //init();
+    init();
     let count = 0;
     while (unknowns > 0 && count < 100) {
         const temp = unknowns;
@@ -118,7 +118,7 @@ const check = function () {
 };
 
 const setup = function () {
-    placeNum(0, 2, 4);
+    /*placeNum(0, 2, 4);
     placeNum(0, 3, 7);
     placeNum(0, 8, 2);
     placeNum(1, 1, 5);
@@ -144,8 +144,70 @@ const setup = function () {
     placeNum(7, 7, 7);
     placeNum(8, 0, 4);
     placeNum(8, 5, 7);
-    placeNum(8, 6, 2);
+    placeNum(8, 6, 2);*/
     //init();
+
+    /*placeNum(0, 1, 4);
+    placeNum(0, 4, 2);
+    placeNum(1, 3, 8);
+    placeNum(1, 8, 7);
+    placeNum(2, 0, 8);
+    placeNum(2, 1, 2);
+    placeNum(2, 4, 6);
+    placeNum(2, 8, 4);
+    placeNum(3, 1, 6);
+    placeNum(3, 4, 3);
+    placeNum(3, 8, 1);
+    placeNum(4, 4, 5);
+    placeNum(4, 6, 8);
+    placeNum(5, 1, 8);
+    placeNum(5, 2, 5);
+    placeNum(5, 3, 2);
+    placeNum(5, 5, 9);
+    placeNum(5, 6, 3);
+    placeNum(6, 0, 4);
+    placeNum(6, 1, 9);
+    placeNum(6, 2, 6);
+    placeNum(6, 3, 3);
+    placeNum(6, 5, 2);
+    placeNum(7, 0, 2);
+    placeNum(7, 3, 4);
+    placeNum(7, 8, 9);
+    placeNum(8, 0, 7);
+    placeNum(8, 3, 9);
+    placeNum(8, 6, 4);
+    placeNum(8, 8, 8);*/
+
+    placeNum(0, 0, 3);
+    placeNum(0, 4, 9);
+    placeNum(0, 7, 7);
+    placeNum(0, 8, 1);
+    placeNum(1, 0, 7);
+    placeNum(1, 3, 5);
+    placeNum(1, 5, 1);
+    placeNum(1, 6, 3);
+    placeNum(2, 0, 8);
+    placeNum(2, 3, 7);
+    placeNum(2, 7, 5);
+    placeNum(3, 2, 8);
+    placeNum(3, 5, 9);
+    placeNum(3, 7, 6);
+    placeNum(4, 2, 2);
+    placeNum(4, 5, 4);
+    placeNum(4, 6, 5);
+    placeNum(4, 8, 8);
+    placeNum(5, 0, 4);
+    placeNum(5, 1, 7);
+    placeNum(5, 2, 9);
+    placeNum(5, 7, 3);
+    placeNum(6, 4, 3);
+    placeNum(7, 1, 1);
+    placeNum(7, 3, 6);
+    placeNum(7, 5, 8);
+    placeNum(7, 8, 7);
+    placeNum(8, 0, 2);
+    placeNum(8, 1, 5);
+    placeNum(8, 8, 3);
 };
 
 const placeNum = function (r, c, n) {
@@ -157,6 +219,7 @@ const step = function () {
     ifOnlyPlace();
     pairsAndTriples();
     while (singleton() !== 0);
+    print(options);
 };
 
 const singleton = function () {
@@ -169,10 +232,8 @@ const singleton = function () {
     return 0;
 };
 
-// Need to fix how triples are found
-    // So far, only found if all three every time
 const ifOnlyPlace = function () {
-    for (let n = 1; n <= 1; n++) {
+    for (let n = 1; n <= 9; n++) {
         const rowPairs = [];
         const colPairs = [];
         const rowTriples = [];
@@ -189,13 +250,18 @@ const ifOnlyPlace = function () {
                 if (Array.isArray(boxOptions[i][j]) && boxOptions[i][j].includes(n))
                     cellsB.push(j);
             }
-            if (cellsR.length === 1)
+            if (cellsR.length === 1) {
                 placeNumber(i, cellsR[0], n);
-            if (cellsC.length === 1)
+                return;
+            }
+            if (cellsC.length === 1) {
                 placeNumber(cellsC[0], i, n);
+                return;
+            }
             if (cellsB.length === 1) {
                 const coords = boxToGrid(i, cellsB[0]);
                 placeNumber(coords.r, coords.c, n);
+                return;
             }
 
             if (cellsR.length === 2) {
@@ -207,6 +273,7 @@ const ifOnlyPlace = function () {
                             removeOption(j, pair.c1, pair.n);
                             removeOption(j, pair.c2, pair.n);
                         }
+                        return;
                     }
                 }
                 rowPairs.push({
@@ -226,6 +293,7 @@ const ifOnlyPlace = function () {
                             removeOption(pair.r1, j, pair.n);
                             removeOption(pair.r2, j, pair.n);
                         }
+                        return;
                     }
                 }
                 colPairs.push({
@@ -236,7 +304,7 @@ const ifOnlyPlace = function () {
                 });
             }
 
-            if (cellsR.length <= 3) {
+            if (cellsR.length <= 3 && cellsR.length > 0) {
                 let found = [];
                 let newTriple = JSON.parse(JSON.stringify(cellsR));
                 for (const triple of rowTriples) {
@@ -245,17 +313,19 @@ const ifOnlyPlace = function () {
                         if (!t.includes(c))
                             t.push(c);
                     }
-                    if (t.length <= 3) {
+                    if (t.length === 3) {
                         if (found.length > 0) {
                             for (let sets of found) {
                                 if (JSON.stringify(sets.c.toSorted((a, b) => a - b)) === JSON.stringify(t.toSorted((a, b) => a - b))) {
                                     for (let j = 0; j < 9; j++) {
                                         if (j === sets.r || j === triple.r || j === i)
                                             continue;
+                                        console.log(sets.c, j, n);
                                         removeOption(j, sets.c[0], n);
                                         removeOption(j, sets.c[1], n);
                                         removeOption(j, sets.c[2], n);
                                     }
+                                    return;
                                 }
                             }
                         } else {
@@ -272,7 +342,7 @@ const ifOnlyPlace = function () {
                 });
             }
 
-            if (cellsC.length <= 3) {
+            if (cellsC.length <= 3 && cellsC.length > 0) {
                 let found = [];
                 let newTriple = JSON.parse(JSON.stringify(cellsC));
                 for (const triple of colTriples) {
@@ -281,24 +351,29 @@ const ifOnlyPlace = function () {
                         if (!t.includes(r))
                             t.push(r);
                     }
-                    if (t.length <= 3) {
+                    if (t.length === 3) {
                         if (found.length > 0) {
                             for (let sets of found) {
                                 if (JSON.stringify(sets.r.toSorted((a, b) => a - b)) === JSON.stringify(t.toSorted((a, b) => a - b))) {
                                     for (let j = 0; j < 9; j++) {
                                         if (j === sets.c || j === triple.c || j === i)
                                             continue;
+                                        print(found);
+                                        console.log(sets.r, j, n);
                                         removeOption(sets.r[0], j, n);
                                         removeOption(sets.r[1], j, n);
                                         removeOption(sets.r[2], j, n);
                                     }
+                                    return;
                                 }
                             }
                         } else {
+                            console.log("t", t, n);
                             found.push({
                                 r: t,
                                 c: triple.c
                             });
+                            print(found);
                         }
                     }
                 }
@@ -436,6 +511,8 @@ const placeNumber = function (r, c, n) {
 };
 
 const removeOption = function (r, c, n) {
+    if (r === 8 && c === 7 && n === 2)
+        console.log("removed");
     if (!Array.isArray(options[r][c]))
         return;
     let idx = options[r][c].indexOf(n);
